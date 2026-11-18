@@ -204,8 +204,8 @@ The checks run against this spec set on 2026-11-18.
 
 | Check | Result |
 |---|---|
-| Spec files written | 6, plus a README and a SOURCES index |
-| Total lines (spec files, excluding `research/`) | 3,581 across 8 files, 163 KB |
+| Spec files written | 7, plus a README and a SOURCES index |
+| Total lines (spec files, excluding `research/`) | 4,278 across 9 files, 190 KB |
 | Research files | 3 agent reports (241 KB) plus the sources-and-caveats document |
 | Every spec file has `## Overview`, `## Sources`, `## Spec`, `## Verification` | Yes |
 | Every file ends with a newline | Yes |
@@ -214,7 +214,7 @@ The checks run against this spec set on 2026-11-18.
 ### Source-liveness checks
 
 Every URL cited in the spec files was fetched and confirmed to contain the
-claimed content. 41 checks, 0 failures.
+claimed content. 53 checks, 0 failures.
 
 | Check | Result |
 |---|---|
@@ -253,6 +253,17 @@ claimed content. 41 checks, 0 failures.
 | `Objects/moduleobject.c` has the slot dispatch and the "multiple Py_mod_exec slots" `SystemError` | Yes |
 | `Makefile.pre.in` has `Modules/gcmodule.o` | Yes |
 | `Lib/importlib/_bootstrap.py` has `__import__`, `_handle_fromlist`, `_resolve_parents`, `_DeadlockError` | Yes |
+| `Include/opcode_ids.h` has `IMPORT_FROM` (71) and `IMPORT_NAME` (72) | Yes |
+| `Include/opcode_ids.h` has **no** `IMPORT_STAR` | Yes |
+| `Python/codegen.c` uses `INTRINSIC_IMPORT_STAR` for `from x import *` | Yes |
+| `Python/codegen.c` has the lazy-scope and lazy-star compile errors | Yes |
+| `Python/bytecodes.c` has the `oparg & 0x02` IMPORT_NAME mode bits | Yes |
+| `Python/bytecodes.c` has the `PyLazyImport_CheckExact` branch in IMPORT_FROM | Yes |
+| `Python/ceval.c` has the `sys.modules` fallback via `PyImport_GetModule` | Yes |
+| `Python/ceval.c` has the "partially initialized module" error message | Yes |
+| `Python/ceval.c` has the "consider renaming" shadowing message and `stdlib_module_names` | Yes |
+| `Modules/config.c.in` has the nine always-builtin entries | Yes |
+| `configure.ac` has `--with-mimalloc` | Yes |
 
 **Three checks initially failed and all three were the test's fault, not the
 spec's:** the `RTLD_NOW` block lives in `pycore_import.h` rather than
@@ -264,7 +275,7 @@ three cases.
 
 ### Structural checks
 
-69 checks over the 11 markdown files in the tree, 0 failures.
+75 checks over the 12 markdown files in the tree, 0 failures.
 
 | Check | Result |
 |---|---|
@@ -301,8 +312,8 @@ reference exists.
 | `terminal` (curl fetches, greps, tree walks) | ~45 |
 | `execute_code` (parsing, counting, verification) | 16 |
 | `delegate_task` | 3 subagents |
-| `write_file` | 8 |
-| `patch` | 6 |
+| `write_file` | 12 |
+| `patch` | 12 |
 
 ### What was NOT done
 

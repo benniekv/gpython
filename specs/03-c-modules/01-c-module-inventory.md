@@ -66,6 +66,65 @@ but they are also not on disk as `.py`. CPython 3.15 freezes `importlib._bootstr
 frozen table is declared in `Python/frozen.c` and the module list in
 `Programs/_freeze_module.py` / `Tools/build/freeze_modules.py`.
 
+### Category 0 - The guaranteed-always-present set (`Modules/config.c.in`)
+
+Before the two `Setup` lists there is a third, smaller list: the modules that
+CPython guarantees exist on **every** build, regardless of platform or
+third-party dependency. It is hard-coded in `Modules/config.c.in` between the
+`ADDMODULE MARKER 2` markers.
+
+Verified content at `v3.15.2`:
+
+```c
+/* -- ADDMODULE MARKER 2 -- */
+
+    /* This module lives in marshal.c */
+    {"marshal", PyMarshal_Init},
+
+    /* This lives in import.c */
+    {"_imp", PyInit__imp},
+
+    /* This lives in Python/Python-ast.c */
+    {"_ast", PyInit__ast},
+
+    /* This lives in Python/Python-tokenize.c */
+    {"_tokenize", PyInit__tokenize},
+
+    /* These entries are here for sys.builtin_module_names */
+    {"builtins", NULL},
+    {"sys", NULL},
+
+    /* This lives in gcmodule.c */
+    {"gc", PyInit_gc},
+
+    /* This lives in Python/_contextvars.c */
+    {"_contextvars", PyInit__contextvars},
+
+    /* This lives in _warnings.c */
+    {"_warnings", _PyWarnings_Init},
+```
+
+That is **nine** entries: `marshal`, `_imp`, `_ast`, `_tokenize`, `builtins`,
+`sys`, `gc`, `_contextvars`, `_warnings`. The `builtins` and `sys` entries carry
+a `NULL` init function; they exist purely so those names appear in
+`sys.builtin_module_names`.
+
+At build time the `makesetup` script inserts the optional built-ins into the
+same table from `Modules/Setup.stdlib.in` lines tagged `*static*`. A module
+built static appears in `sys.builtin_module_names`; the same module built
+shared becomes a `dlopen`-able extension that is not built-in but is still
+shipped in the stdlib package.
+
+**The four-category rule.** Every C module exists in exactly one of these forms:
+
+| Form | Lives in | Generated from | Visible to Python |
+|---|---|---|---|
+| Always built-in | `Modules/config.c.in` | none | `sys.builtin_module_names` |
+| Optional built-in | `Modules/config.c` (generated) | `Setup.stdlib.in` lines tagged `*static*` | `sys.builtin_module_names` |
+| Extension | `.so`/`.pyd` produced by the build | `Setup.stdlib.in` lines tagged `*shared*` | Imported from `sys.path` |
+| Frozen | `Python/frozen.c` marshalled blobs | `Tools/build/freeze_modules.py` | Imported as if from `Lib/` |
+| Pure Python | `Lib/<name>.py` (or `Lib/<pkg>/__init__.py`) | none | Imported from `sys.path` |
+
 ### Category 1 - Always-static builtins (27)
 
 From `Modules/Setup.bootstrap.in`. These are in the interpreter binary on every

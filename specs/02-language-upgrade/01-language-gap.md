@@ -599,6 +599,38 @@ What gpython must add, in priority order:
 `profile`, `pstats`, `trace`, `cProfile`, `runpy`, `pkgutil`, `zipapp`,
 `distutils` (removed), `asynchat` (removed), and the rest.
 
+### The build-level changes (not source-level, but they matter)
+
+These do not change Python source semantics, but they change how CPython is
+built and therefore what a Go port is competing with.
+
+| Change | Version | What it means |
+|---|---|---|
+| **mimalloc is the default allocator** | 3.15 | `configure.ac` gained `--with-mimalloc`, defaulting to yes when C11 `stdatomic.h` is available. CPython 3.15 allocates through mimalloc rather than pymalloc alone. |
+| **Tier-2 tail-call interpreter** | 3.14+ | A second interpreter loop (`_Py_TIER2`) that performs tail calls without growing the C stack. Enabled on builds with a compatible compiler. |
+| **Frame pointers by default** | 3.15 | PEP 831. The build enables frame pointers so profilers can walk the stack. |
+| **Tail-call interpreter on Windows** | 3.15 | The Windows binaries ship with the tail-call interpreter enabled. |
+| **Emscripten is a tier-3 platform** | 3.14 | PEP 776. |
+| **Free-threaded build officially supported** | 3.14 | PEP 779. |
+
+Evidence for mimalloc, from `configure.ac` at `v3.15.2`:
+
+```m4
+# --with-mimalloc
+AC_MSG_CHECKING([for --with-mimalloc])
+AC_ARG_WITH([mimalloc],
+  [AS_HELP_STRING([--with-mimalloc],
+                 [build with mimalloc memory allocator (default is yes if C11 stdatomic.h is available.)])],
+```
+
+**Why this matters for gpython.** Go has its own allocator and its own
+goroutine stacks, so mimalloc has no direct analogue and no porting cost. The
+tier-2 tail-call interpreter does: gpython's `vm/` uses a Go recursive
+evaluator, and Go's goroutine stacks grow dynamically, so deep Python
+recursion is already handled by the Go runtime rather than by the C stack.
+A gpython port therefore inherits the *benefit* of the tail-call interpreter
+without needing to implement it.
+
 ### The 3.15-specific items to implement
 
 These are the items specific to 3.15 that a 3.14-targeted port would miss:
