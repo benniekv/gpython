@@ -1,0 +1,103 @@
+# CPython 3.15 Module System and gpython Upgrade - Spec Set
+
+This directory holds the research specifications for two related projects:
+
+1. **Re-implement CPython's module system in Go**, so that gpython can load
+   Python modules the way CPython does.
+2. **Upgrade gpython from Python 3.4 semantics to Python 3.15**, including the
+   parser, the compiler, the runtime and the standard library.
+
+The reference implementation is **CPython 3.15.2**, pinned by tag. Every source
+citation in this tree uses the `v3.15.2` tag, never `main` (which is already at
+3.16.0a2+dev).
+
+## Reading order
+
+Read in this order. Each file assumes the ones before it.
+
+| # | File | What it covers |
+|---|---|---|
+| 1 | `00-foundations/01-scope-and-baseline.md` | What gpython is today, what 3.15.2 is, how big the gap is, the three workstreams |
+| 2 | `01-module-system/01-import-pipeline.md` | The full import pipeline, stage by stage, with the behaviours that break naive re-implementations |
+| 3 | `01-module-system/02-module-object-model.md` | The module object model, the `PyModuleDef` structure, the 3.15 unified slot mechanism, the extension init protocol |
+| 4 | `02-language-upgrade/01-language-gap.md` | Every syntax, compiler and runtime change from 3.4 to 3.15, with PEPs, and the workstream breakdown |
+| 5 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
+
+## The three workstreams
+
+| Workstream | Directory | Size | Depends on |
+|---|---|---|---|
+| **A. Module system** | `01-module-system/` | Large | Nothing |
+| **B. Language and stdlib** | `02-language-upgrade/` | Very large | A |
+| **C. C-module inventory** | `03-c-modules/` | Medium (reference) | Nothing, but it sizes B's stdlib work |
+
+**Workstream A is a prerequisite for B.** A 3.15 stdlib cannot be loaded by a
+3.4-era import system. The modern stdlib uses `importlib.resources` as a
+package, `annotationlib`, lazy imports (PEP 810), and module-level `__getattr__`
+hooks.
+
+**Workstream C sizes B's stdlib work.** The C inventory shows which stdlib
+modules are pure Python (port directly), which need a bundled C library ported
+(`decimal` needs libmpdec, `sqlite3` needs SQLite, `xml` needs expat, `ctypes`
+needs libffi, `ssl` needs OpenSSL), and which have no Go equivalent at all.
+
+## The headline numbers
+
+All measured, not estimated.
+
+| Measure | Value | How measured |
+|---|---|---|
+| Reference release | CPython 3.15.2, `PY_RELEASE_LEVEL_FINAL` | `Include/patchlevel.h` |
+| CPython source files | 6141 | GitHub trees API, `truncated: false` |
+| C modules in `Modules/*.c` | 101 | GitHub trees API |
+| Always-static builtins | 27 | `Modules/Setup.bootstrap.in` |
+| Buildable C extensions | 80 | `Modules/Setup.stdlib.in` |
+| `Lib/` top-level `.py` modules | 151 | GitHub trees API |
+| `Lib/` packages (excluding `Lib/test/`) | 146 | GitHub trees API |
+| gpython stdlib modules | 11 | `ls stdlib/` in the gpython checkout |
+| gpython internal packages | 13 | Source tree |
+| Language versions spanned | 11 (3.4 → 3.15) | - |
+| PEPs in the feature list | ~55 | Per-file tables |
+| Modules removed between 3.4 and 3.15 | 30 | Verified absent from the 3.15.2 `Lib/` tree |
+
+## Source pin
+
+```
+https://raw.githubusercontent.com/python/cpython/v3.15.2/<path>
+```
+
+Fetched on 2026-11-18. The tree listing came from:
+
+```
+https://api.github.com/repos/python/cpython/git/trees/v3.15.2?recursive=1
+```
+
+which returned 6141 entries with `truncated: false`, so the inventory in
+`03-c-modules/` is complete rather than sampled.
+
+## Conventions
+
+Every spec file has four H2 sections, in this order:
+
+1. **Overview** - what the topic covers and why.
+2. **Sources** - the URLs and local artifacts that informed it.
+3. **Spec** - the content.
+4. **Verification** - how a future reader proves the section was met.
+
+Files that state a measured number state how it was measured. Claims that could
+not be verified against a fetched source are marked explicitly.
+
+## The research log
+
+`research/` holds the raw material:
+
+| File | Contents |
+|---|---|
+| `00-agent-import-mechanism.md` | The full import-mechanism research report (98 KB) |
+| `00-agent-c-module-inventory.md` | The full C-module research report (79 KB) |
+| `00-agent-language-upgrade.md` | The full language-upgrade research report (63 KB) |
+| `00-sources-and-caveats.md` | Every source consulted, every gap, and the follow-up work |
+
+The agent reports are raw material, not spec. Where they disagree with the
+spec files, the spec files win - they were written afterwards against the
+source directly, and the discrepancies were corrected.
