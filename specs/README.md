@@ -17,6 +17,7 @@ Read in this order. Each file assumes the ones before it.
 
 | # | File | What it covers |
 |---|---|---|
+| 0 | `00-hard-requirements.md` | **The four hard engineering rules. Read this first.** |
 | 1 | `00-foundations/01-scope-and-baseline.md` | What gpython is today, what 3.15.2 is, how big the gap is, the three workstreams |
 | 2 | `01-module-system/01-import-pipeline.md` | The full import pipeline, stage by stage, with the behaviours that break naive re-implementations |
 | 3 | `01-module-system/02-module-object-model.md` | The module object model, the `PyModuleDef` structure, the 3.15 unified slot mechanism, the extension init protocol |
@@ -24,6 +25,7 @@ Read in this order. Each file assumes the ones before it.
 | 5 | `02-language-upgrade/01-language-gap.md` | Every syntax, compiler and runtime change from 3.4 to 3.15, with PEPs, and the workstream breakdown |
 | 6 | `02-language-upgrade/02-gpython-work-plan.md` | Which gpython files change for each feature, layer by layer, with a 16-step implementation order |
 | 7 | `02-language-upgrade/03-web-research-language-semantics.md` | The normative language semantics from the PEPs and the Language Reference, with the web research that produced them |
+| 8 | `02-language-upgrade/04-code-style-and-testing.md` | The code style, the five test styles, and where the test data comes from |
 | 8 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
 
 ## The three workstreams

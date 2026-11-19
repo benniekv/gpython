@@ -86,12 +86,26 @@ change is needed.
     stdlib/builtin/tests/builtin.py -> run by stdlib/builtin/builtin_test.go
     vm/tests/*.py                 -> run by vm/vm_test.go
 
-The harness compares program output against golden files in `testdata/`. When the
-expected output changes on purpose, regenerate with `-regen` and review the diff.
+The harness compares program output against golden files in `testdata/`.
+
+The compile, symtable and grammar golden data under `compile/`,
+`symtable/` and `parser/` are different. They are **generated from CPython**,
+not from gpython, by `make_compile_test.py`, `make_symtable_test.py` and
+`make_grammar_test.py`. Regenerate them with the CPython version that is the
+target, and review the diff. Never regenerate them from gpython's own output
+with `-regen`: that would rewrite the oracle to match the implementation and
+hide the difference.
+
+`-regen` is only for the `testdata/test_golden.txt` files of a stdlib module,
+and only when the module's correct output changed.
 
 Every new behavior needs a test. Do not edit a test to make it pass unless the test
 was wrong. If the behavior is a deliberate change to Python semantics, say so in the
 commit message.
+
+See the Hard requirements section below. The short version: code and tests go in
+separate commits, and a failing test gets reported and diagnosed, never
+auto-fixed.
 
 ## Code conventions
 
@@ -159,6 +173,39 @@ Reference an issue as `Fixes go-python/gpython#NN` when one exists.
 - Do not touch `LICENSE`, `.goreleaser.yml`, or the CI workflow unless the task is
   about packaging or CI.
 
+## Hard requirements
+
+These four rules are absolute. They override any other guidance in this file,
+in `CONTRIBUTE.md`, in `specs/`, or in an individual task request.
+
+The full text, with examples and the commit-splitting procedure, is in
+`specs/00-hard-requirements.md`.
+
+1. **Always add documentation to all code created or modified.** Every function,
+   type, method and non-obvious block. Exported identifiers get a doc comment
+   starting with the identifier name. Update the doc comment when you change
+   the behaviour, so it never contradicts the code.
+
+2. **Always add tests, and never modify tests and code at the same time.** A
+   commit changes either the production code or the tests, never both. A commit
+   that touches only tests needs a message explaining what was wrong with the
+   old expectation. The compile, symtable and grammar golden data are test
+   data: regenerating them is its own commit, and it must name the CPython
+   version that produced them.
+
+3. **A failing test is a good outcome. Diagnose it with the person; never fix
+   it automatically.** Do not delete, weaken, skip or rewrite a failing test,
+   and never regenerate a golden file to match wrong output. Report the
+   failure, present the evidence, and agree the fix with the person first.
+
+4. **All code must be tested unless it is documented as untestable. Only a
+   person, together with the agent's guidance, can declare code untestable.**
+   The agent may identify a candidate and explain it. A bare `// TODO: add
+   tests` is not documentation of untestability.
+
+A work item is not done because the tests are green. It is done when the tests
+are green because the code is right, and the person has reviewed it.
+
 ## Scope
 
 Implement the artifact the task names. If a different approach looks better, build the
@@ -172,6 +219,10 @@ problem, not only the reported site.
 
 ## Reference
 
+- `specs/00-hard-requirements.md` for the four hard engineering rules, with
+  examples and the commit-splitting procedure.
+- `specs/02-language-upgrade/04-code-style-and-testing.md` for the code style,
+  the five test styles and where the test data comes from.
 - `README.md` for what gpython is and its status.
 - `CONTRIBUTE.md` for the upstream contribution rules and commit format.
 - `notes.txt` for the author's list of ideas and known gaps.
