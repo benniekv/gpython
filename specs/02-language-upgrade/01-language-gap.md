@@ -117,7 +117,7 @@ Every feature added between 3.5 and 3.15, with the PEP and the version.
 
 | PEP | Feature | gpython impact |
 |---|---|---|
-| 498 | f-strings: `f"..."`, `F"..."` | Parser, compiler, runtime: `FORMAT_VALUE`, `BUILD_STRING` |
+| 498 | f-strings: `f"..."`, `F"..."` | Parser, compiler, runtime: `FORMAT_SIMPLE`, `FORMAT_WITH_SPEC`, `BUILD_STRING` |
 | 515 | Numeric underscores: `1_000_000` | Lexer |
 | 526 | Variable annotations: `x: int = 1`, `class C: x: int` | Parser, compiler, runtime |
 | 525 | Async generators: `async def` with `yield` | Compiler, runtime |
@@ -269,11 +269,11 @@ struct change. The significant ones:
 
 | Change | Version | Effect |
 |---|---|---|
-| New opcodes for f-strings | 3.6 | `FORMAT_VALUE`, `BUILD_STRING` |
-| `LOAD_ASSERTION_ERROR` | 3.9 | For `assert` |
+| New opcodes for f-strings | 3.6 | `FORMAT_SIMPLE`, `FORMAT_WITH_SPEC`, `BUILD_STRING` |
 | `COPY`, `SWAP`, `RESUME` | 3.11 | Exception-group and exception-handling rework |
+| `LOAD_FAST_AND_CLEAR`, `END_FOR` | 3.12 | PEP 709 comprehension inlining |
+| `CHECK_EG_MATCH`, `PUSH_EXC_INFO`, `POP_EXCEPT`, `CLEANUP_THROW`, `RERAISE`, `WITH_EXCEPT_START` | 3.11 | PEP 654 exception groups |
 | Comprehension inlining | 3.12 | Comprehensions no longer create a nested function; the `MAKE_FUNCTION` + `CALL` sequence is replaced by inline code |
-| `RETURN_CONST` | 3.12 | Constant return values |
 | `NOT_TAKEN` | 3.12 | Branch prediction for `JUMP` |
 | `CALL_INTRINSIC_1` | 3.13 | Optimised intrinsics |
 | `SET_FUNCTION_ATTRIBUTE` | 3.14 | For `__annotate__` |

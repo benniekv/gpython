@@ -48,6 +48,26 @@
 | `https://peps.python.org/pep-0790/` | 2026-11-18 | The 3.15 release schedule |
 | `https://peps.python.org/pep-0826/` | 2026-11-18 | The 3.16 development schedule |
 
+## Web research sources (the normative specifications)
+
+These are the sources for `02-language-upgrade/03-web-research-language-semantics.md`.
+Fetched on 2026-11-18.
+
+| URL | Used for |
+|---|---|
+| `https://peps.python.org/pep-0701/` | The f-string grammar, the three tokens, the 5-level nesting lower bound, the untokenize requirement |
+| `https://peps.python.org/pep-0634/` | The full `match` grammar, the pattern semantics, the sequence protocol, `__match_args__` |
+| `https://peps.python.org/pep-0695/` | The type parameter syntax, the annotation scope rules, the lazy evaluation model |
+| `https://peps.python.org/pep-0654/` | `ExceptionGroup` and `except*` semantics, the recursive matching rule, the forbidden combinations |
+| `https://peps.python.org/pep-0749/` | `annotationlib`, the `__annotate__` signature, the `STRING` format rename, the stringifier's supported expressions |
+| `https://peps.python.org/pep-0709/` | The before/after comprehension bytecode, the visible behaviour changes |
+| `https://docs.python.org/3/reference/compound_stmts.html` | The 3.15.2 Language Reference grammar for `try`, `match`, `funcdef`, `classdef` |
+| `https://docs.python.org/3/whatsnew/3.15.html` | The 3.15 removals list, the PEP 810 restrictions, `frozendict`, `sentinel` |
+| `https://github.com/python/cpython/blob/main/InternalDocs/inlined_comprehensions.md` | The PEP 709 symbol table rules, `InlinedComprehensionBlock`, the codegen entry/exit functions |
+| `https://github.com/python/cpython/pull/101441` | The `LOAD_FAST_AND_CLEAR` rationale, the cell-in-`co_varnames` handling |
+| `https://github.com/python/cpython/issues/97933` | The original inlining proposal, the `locals()` and traceback changes |
+| `https://jellezijlstra.github.io/pep695.html` | The PEP 695 implementer's notes, the `&"type"` lookahead, the rule-ordering constraint |
+
 ## Local sources
 
 | Path | Used for |
@@ -130,3 +150,9 @@ set as complete where it is not.
    research agent flagged PEP 711, 712, 713, 714, 720, 721, 723, 725, 733, 780,
    789 and 794 as rejected or withdrawn based on searching the docs. Each should
    be checked at `peps.python.org` before being relied on.
+9. **The 3.15 Removed section is now known at the module level, but not at the
+   function level.** The modules with removals in 3.15 are `ast`,
+   `collections.abc`, `ctypes`, `datetime`, `glob`, `http.server`,
+   `importlib`, `importlib.resources`, `pathlib`, `platform`, `sre_*`,
+   `sysconfig`, `threading`, `types`, `typing`, `wave` and `zipimport`. The
+   individual removed functions within those modules are not yet itemised.

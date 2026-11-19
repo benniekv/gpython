@@ -204,8 +204,8 @@ The checks run against this spec set on 2026-11-18.
 
 | Check | Result |
 |---|---|
-| Spec files written | 7, plus a README and a SOURCES index |
-| Total lines (spec files, excluding `research/`) | 4,278 across 9 files, 190 KB |
+| Spec files written | 8, plus a README and a SOURCES index |
+| Total lines (spec files, excluding `research/`) | 5835 across 10 files, 255 KB |
 | Research files | 3 agent reports (241 KB) plus the sources-and-caveats document |
 | Every spec file has `## Overview`, `## Sources`, `## Spec`, `## Verification` | Yes |
 | Every file ends with a newline | Yes |
@@ -214,7 +214,7 @@ The checks run against this spec set on 2026-11-18.
 ### Source-liveness checks
 
 Every URL cited in the spec files was fetched and confirmed to contain the
-claimed content. 53 checks, 0 failures.
+claimed content. 65 checks, 0 failures.
 
 | Check | Result |
 |---|---|
@@ -275,6 +275,17 @@ claimed content. 53 checks, 0 failures.
 | `Python/ceval.c` has the "consider renaming" shadowing message and `stdlib_module_names` | Yes |
 | `Modules/config.c.in` has the nine always-builtin entries | Yes |
 | `configure.ac` has `--with-mimalloc` | Yes |
+| `Include/opcode_ids.h` has 248 opcodes | Yes |
+| `RETURN_CONST`, `FORMAT_VALUE`, `KW_NAMES`, `LOAD_ASSERTION_ERROR`, `JUMP_IF_NOT_EXC_MATCH` are **absent** from 3.15 | Yes, all five |
+| `FORMAT_SIMPLE`, `FORMAT_WITH_SPEC`, `BUILD_STRING`, `CALL_KW`, `CALL_FUNCTION_EX` are present | Yes |
+| `MAKE_CELL`, `COPY_FREE_VARS`, `LOAD_FAST_AND_CLEAR`, `END_FOR` are present | Yes |
+| `RESUME`, `COPY`, `SWAP` are present | Yes |
+| `CHECK_EG_MATCH`, `CHECK_EXC_MATCH`, `PUSH_EXC_INFO`, `POP_EXCEPT`, `CLEANUP_THROW`, `RERAISE`, `WITH_EXCEPT_START` are present | Yes |
+| `Parser/Python.asdl` uses the lowercase `type_param` production with `default_value` | Yes |
+| `Parser/Python.asdl` has `TryStar` as well as `Try` | Yes |
+| `Grammar/python.gram` has a `try2_stmt` production allowing `except*` with `else` and `finally` | Yes |
+| `Grammar/python.gram` raises "cannot have both 'except' and 'except*'" | Yes |
+| `Grammar/python.gram` raises "multiple exception types must be parenthesized when using 'as'" | Yes |
 
 **Three checks initially failed and all three were the test's fault, not the
 spec's:** the `RTLD_NOW` block lives in `pycore_import.h` rather than
@@ -286,7 +297,7 @@ three cases.
 
 ### Structural checks
 
-75 checks over the 12 markdown files in the tree, 0 failures.
+98 checks over the 13 markdown files in the tree, 0 failures.
 
 | Check | Result |
 |---|---|
@@ -306,6 +317,36 @@ three cases.
 | `sys.path[0]` for `python -c` | `''` |
 | `from xml import etree` imports the submodule | Yes, `xml.etree` enters `sys.modules` |
 | `os.path is sys.modules['posixpath']` | True, the attribute-wins case |
+
+### Language semantics checks (CPython 3.14.9, live)
+
+These confirm the normative claims in
+`02-language-upgrade/03-web-research-language-semantics.md`.
+
+| Check | Expected | Result |
+|---|---|---|
+| 5-level f-string nesting (PEP 701) | prints `2` | Yes |
+| 2-level format-spec nesting (PEP 701) | no error | Yes |
+| `str` is not a sequence-pattern subject (PEP 634) | `no match` | Yes |
+| `locals()` in a comprehension has no `.0` and includes outer names (PEP 709) | `[{'lst': [1], 'x': 1}]` | Yes |
+| PEP 695: type parameter not in scope in a default value | `NameError` | Yes |
+| PEP 695: type alias in a class body sees the class scope | resolves | Yes |
+| PEP 695: function annotation in a class body sees the class scope | resolves | Yes |
+| PEP 695: regular function body in a class body does not see class scope | `NameError` | Yes |
+| `except*` with `else` | no error | Yes |
+| `except*` with `finally` | no error | Yes |
+| `except*` mixed with `except` | `SyntaxError` | Yes |
+| `except*` mixed with a bare `except:` | `SyntaxError` | Yes |
+| `frozendict` exists | present | Not applicable on 3.14; it is a 3.15 builtin |
+
+**Two live checks corrected claims made from the source alone:**
+
+- `except*` with `else` and with `finally` is **allowed**. The spec had
+  listed both as forbidden. The 3.15.2 grammar's `try2_stmt` production
+  carries both optional clauses, and the live check confirms no error.
+- The PEP 695 class-scope rule applies to **annotation scopes**, not to
+  function bodies. A `type` alias and a function's annotation inside a class
+  body both resolve a class attribute; a function *body* does not.
 
 ### Cross-reference check
 

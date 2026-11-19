@@ -23,7 +23,8 @@ Read in this order. Each file assumes the ones before it.
 | 4 | `01-module-system/03-import-bytecodes.md` | The emitted bytecode for `import` and `from`, the `IMPORT_FROM` fallback and its exact error messages, the lazy import protocol |
 | 5 | `02-language-upgrade/01-language-gap.md` | Every syntax, compiler and runtime change from 3.4 to 3.15, with PEPs, and the workstream breakdown |
 | 6 | `02-language-upgrade/02-gpython-work-plan.md` | Which gpython files change for each feature, layer by layer, with a 16-step implementation order |
-| 7 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
+| 7 | `02-language-upgrade/03-web-research-language-semantics.md` | The normative language semantics from the PEPs and the Language Reference, with the web research that produced them |
+| 8 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
 
 ## The three workstreams
 
@@ -62,6 +63,9 @@ All measured, not estimated.
 | gpython internal packages | 13 | Source tree |
 | Language versions spanned | 11 (3.4 → 3.15) | - |
 | PEPs in the feature list | ~55 | Per-file tables |
+| CPython 3.15.2 opcodes | 248 | `Include/opcode_ids.h` |
+| gpython opcodes | 102 | `vm/opcodes.go` |
+| Opcode names common to both | 53 | Set intersection |
 | Modules removed between 3.4 and 3.15 | 30 | Verified absent from the 3.15.2 `Lib/` tree |
 
 ## Source pin

@@ -310,33 +310,53 @@ opcode *names* match 3.4. Any test data, any golden file, and any
 
 | Opcode | PEP | Version | Needed for |
 |---|---|---|---|
-| `FORMAT_VALUE` | 498 | 3.6 | f-strings |
+| `FORMAT_SIMPLE` / `FORMAT_WITH_SPEC` | 498, 701 | 3.6, 3.12 | f-strings |
 | `BUILD_STRING` | 498 | 3.6 | f-strings |
 | `CALL_FUNCTION_EX` | 448 | 3.5 | `*args`, `**kwargs` calls |
-| `CALL_KW` / `KW_NAMES` | 448 | 3.5 | keyword arguments at call sites |
+| `CALL_KW` | 448 | 3.5 | keyword arguments at call sites |
 | `LIST_EXTEND` | 448 | 3.5 | `[*a, *b]` |
 | `DICT_MERGE` / `DICT_UPDATE` | 448 | 3.5 | `{**a, **b}` |
-| `MAKE_FUNCTION` flags | 570 | 3.8 | posonly/kwonly |
-| `LOAD_ASSERTION_ERROR` | - | 3.9 | `assert` |
 | `LIST_TO_TUPLE` | - | 3.9 | `*a` unpacking |
 | `IS_OP` | - | 3.9 | `is not` |
 | `CONTAINS_OP` | - | 3.9 | `not in` |
-| `JUMP_IF_NOT_EXC_MATCH` | 654 | 3.11 | `except*` |
+| `CHECK_EG_MATCH` | 654 | 3.11 | `except*` |
 | `CHECK_EXC_MATCH` | 654 | 3.11 | `except*` |
 | `PUSH_EXC_INFO` | 654 | 3.11 | `except*` |
-| `COPY` / `SWAP` / `CLEANUP_THROW` | 654 | 3.11 | `except*` |
+| `POP_EXCEPT` | 654 | 3.11 | `except*` |
+| `CLEANUP_THROW` | 654 | 3.11 | `except*` |
+| `RERAISE` | 654 | 3.11 | `except*` |
+| `WITH_EXCEPT_START` | 654 | 3.11 | `except*` |
+| `COPY` / `SWAP` | 654 | 3.11 | `except*` stack manipulation |
 | `MAKE_CELL` / `COPY_FREE_VARS` | - | 3.11 | cell variables, PEP 709 |
+| `LOAD_FAST_AND_CLEAR` | 709 | 3.12 | PEP 709 comprehension inlining |
 | `RESUME` | - | 3.11 | exception handling |
-| `RETURN_CONST` | - | 3.12 | constant returns |
 | `NOT_TAKEN` | - | 3.12 | branch prediction |
-| `LOAD_BUILD_CLASS` (3.12 semantics) | 695 | 3.12 | PEP 695 class creation |
-| `CALL_INTRINSIC_1` | - | 3.13 | optimised intrinsics |
-| `FORMAT_SIMPLE` / `FORMAT_WITH_SPEC` | - | 3.13 | f-string optimisation |
+| `BINARY_OP` | - | 3.11 | the unified binary operator (optional for gpython) |
+| `CALL_INTRINSIC_1` / `CALL_INTRINSIC_2` | - | 3.13 | optimised intrinsics |
 | `SET_FUNCTION_ATTRIBUTE` | 649 | 3.14 | `__annotate__` |
-| `END_FOR` | - | 3.14 | loop exit |
-| `LOAD_FAST_LOAD_FAST` | - | 3.14 | superinstruction |
+| `END_FOR` | - | 3.14 | loop exit, PEP 709 |
+| `LOAD_FAST_LOAD_FAST` | - | 3.14 | superinstruction (optional) |
 | `LOAD_COMMON_CONSTANT` | - | 3.15 | shared constants |
-| `BINARY_OP` | - | 3.11 | the unified binary operator |
+
+**Correction.** An earlier draft of this table listed `RETURN_CONST`,
+`FORMAT_VALUE`, `KW_NAMES`, `LOAD_ASSERTION_ERROR` and
+`JUMP_IF_NOT_EXC_MATCH`. **None of those five opcodes exist in CPython
+3.15.** The real names are in the table above. See
+`03-web-research-language-semantics.md` for the full verification.
+
+**How many opcodes gpython actually needs.** The table above lists 32, but
+gpython does not need all of them. The minimum set that the new features
+require is **12**:
+
+```
+FORMAT_SIMPLE, FORMAT_WITH_SPEC, BUILD_STRING, CALL_FUNCTION_EX, CALL_KW,
+LIST_EXTEND, DICT_MERGE, MAKE_CELL, COPY_FREE_VARS, LOAD_FAST_AND_CLEAR,
+END_FOR, RESUME, COPY, SWAP
+```
+
+plus the seven `except*` opcodes, which are counted separately because they
+are one feature rather than seven. The rest are CPython optimisations that
+gpython can skip.
 
 **The `BINARY_OP` change is the one that ripples furthest.** In 3.11 CPython
 collapsed `BINARY_ADD`, `BINARY_SUBTRACT`, `BINARY_MULTIPLY`, `BINARY_TRUE_DIVIDE`,
@@ -344,6 +364,13 @@ collapsed `BINARY_ADD`, `BINARY_SUBTRACT`, `BINARY_MULTIPLY`, `BINARY_TRUE_DIVID
 `BINARY_RSHIFT`, `BINARY_AND`, `BINARY_XOR`, `BINARY_OR` and their inplace
 variants into a single `BINARY_OP` with an argument selecting the operation.
 gpython currently has 13 separate `BINARY_*` opcodes plus 6 `INPLACE_*` ones.
+
+**The scale of the divergence.** CPython 3.15.2 has **248** opcodes and
+gpython has 102. Only 53 opcode *names* are common to both. 49 of gpython's
+opcodes do not exist in 3.15, and 195 of 3.15's do not exist in gpython.
+Most of the 195 are the specialising interpreter's `CALL_*` families
+(`CALL_PY_EXACT_ARGS`, `CALL_METHOD_DESCRIPTOR_FAST`, `CALL_STR_1` and
+similar), which gpython does not need.
 
 **The choice:** keep gpython's expanded opcode set, or collapse it to match
 3.15. Keeping the expanded set is fine for a Go implementation with its own
@@ -353,14 +380,16 @@ any `.pyc` compatibility goal.
 
 **Recommendation:** gpython already has its own bytecode format. Keep the
 expanded `BINARY_*` set. Add the opcodes that new features require
-(`FORMAT_VALUE`, `BUILD_STRING`, the `except*` set, `MAKE_CELL`,
-`COPY_FREE_VARS`, `RESUME`, `CALL_KW`, `KW_NAMES`, `CALL_FUNCTION_EX`,
-`LIST_EXTEND`, `DICT_MERGE`) and leave the rest. Document the divergence so
-nobody assumes gpython bytecode is CPython bytecode.
+(`FORMAT_SIMPLE`, `FORMAT_WITH_SPEC`, `BUILD_STRING`, the `except*` set,
+`MAKE_CELL`, `COPY_FREE_VARS`, `LOAD_FAST_AND_CLEAR`, `END_FOR`, `RESUME`,
+`COPY`, `SWAP`, `CALL_KW`, `CALL_FUNCTION_EX`, `LIST_EXTEND`, `DICT_MERGE`) and
+leave the rest. Document the divergence so nobody assumes gpython bytecode is
+CPython bytecode.
 
-**Work estimate:** 30 new opcodes, `vm/jumptable.go` grows by roughly the same
-number of cases, and `vm/vm.go` (currently 46 lines, dispatching into
-`jumptable.go`) needs the new stack-manipulation ops.
+**Work estimate:** 12 new opcodes for the new features, plus 7 for the
+`except*` machinery. `vm/jumptable.go` grows by roughly the same number of
+cases, and `vm/vm.go` (currently 46 lines, dispatching into `jumptable.go`)
+needs the new stack-manipulation ops.
 
 ### Layer 7 - `py/`
 
