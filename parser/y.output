@@ -7023,14 +7023,14 @@ state 488
 
 
 92 terminals, 125 nonterminals
-311 grammar rules, 489/8000 states
+311 grammar rules, 489/16000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
 174 working sets used
-memory: parser 2661/120000
+memory: parser 2661/240000
 215 extra closures
 1903 shift entries, 3 exceptions
 303 goto entries
 1644 entries saved by goto default
-Optimizer space used: output 1441/120000
+Optimizer space used: output 1441/240000
 1441 table entries, 530 zero
 maximum spread: 92, maximum offset: 486

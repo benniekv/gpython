@@ -359,7 +359,7 @@ func BuiltinImport(ctx Context, self Object, args Tuple, kwargs StringDict, curr
 	}
 	levelInt, err := levelObj.GoInt()
 	if err != nil {
-	    return nil, err
+		return nil, err
 	}
 
 	globalsDict, ok := globals.(StringDict)
