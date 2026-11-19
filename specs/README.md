@@ -27,6 +27,9 @@ Read in this order. Each file assumes the ones before it.
 | 7 | `02-language-upgrade/03-web-research-language-semantics.md` | The normative language semantics from the PEPs and the Language Reference, with the web research that produced them |
 | 8 | `02-language-upgrade/04-code-style-and-testing.md` | The code style, the five test styles, and where the test data comes from |
 | 9 | `02-language-upgrade/05-code-gap-analysis.md` | **What gpython's code is missing**, measured by running it: the broken `import importlib`, the unordered dict, 127 missing methods, 22% coverage |
+| 10 | `02-language-upgrade/06-porting-and-build-system.md` | The Go 1.27 upgrade, the Makefile, and the open web-target port |
+| 11 | `02-language-upgrade/07-repository-guide.md` | The layout, the dependency graph, the code generators, the full style rules |
+| 12 | `02-language-upgrade/08-hand-written-parsers.md` | Hand-written parsers and lexers in Go, and the grammar-generator options |
 | 8 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
 
 ## The three workstreams
@@ -64,6 +67,27 @@ because they only show up when you run the interpreter. Both are in
    order. Measured across five runs, gpython produced five different
    orderings of the same eight keys, and `keys()` and `items()` disagreed
    within a single run. CPython guarantees insertion order since 3.7.
+
+## The open decisions
+
+Two decisions are waiting on the person. Both are recorded in full in the
+spec files.
+
+1. **The web target.** `repl/web` imports `github.com/gopherjs/gopherwasm`,
+   which upstream has **archived**. The wasm build still works, but on a
+   dependency nobody maintains. Porting it to `syscall/js` is a contained
+   job: two API changes and the `js.Func` lifecycle. The GopherJS path
+   additionally needs a **separate Go 1.21 toolchain**, because GopherJS
+   only supports Go 1.21 and gpython now requires 1.27.
+   See `02-language-upgrade/06-porting-and-build-system.md`.
+
+2. **The parser.** gpython's **lexer is already hand-written** (992 lines).
+   Only the parser uses goyacc: 129 rules in a 1,987-line grammar producing
+   3,155 lines of Go. CPython's PEG grammar has **147 `invalid_`
+   alternatives**, which is the mechanism an LALR parser cannot express, and
+   that is what blocks PEP 634's soft keywords. The options range from
+   keeping goyacc to hand-writing the whole parser.
+   See `02-language-upgrade/08-hand-written-parsers.md`.
 
 ## The headline numbers
 
