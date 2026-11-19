@@ -1,6 +1,14 @@
 *~
 .#*
 \#*\#
+
+# Build output. Everything the Makefile builds lives in bin/, and bin/ is
+# never committed. bin/install-python.sh is the one exception: it is a
+# source script, not a build product.
+/bin/*
+!/bin/install-python.sh
+
+# The interpreter, wherever it is built.
 gpython
 hello.*
 primes.*
