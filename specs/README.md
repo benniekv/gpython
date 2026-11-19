@@ -26,6 +26,7 @@ Read in this order. Each file assumes the ones before it.
 | 6 | `02-language-upgrade/02-gpython-work-plan.md` | Which gpython files change for each feature, layer by layer, with a 16-step implementation order |
 | 7 | `02-language-upgrade/03-web-research-language-semantics.md` | The normative language semantics from the PEPs and the Language Reference, with the web research that produced them |
 | 8 | `02-language-upgrade/04-code-style-and-testing.md` | The code style, the five test styles, and where the test data comes from |
+| 9 | `02-language-upgrade/05-code-gap-analysis.md` | **What gpython's code is missing**, measured by running it: the broken `import importlib`, the unordered dict, 127 missing methods, 22% coverage |
 | 8 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
 
 ## The three workstreams
@@ -45,6 +46,24 @@ hooks.
 modules are pure Python (port directly), which need a bundled C library ported
 (`decimal` needs libmpdec, `sqlite3` needs SQLite, `xml` needs expat, `ctypes`
 needs libffi, `ssl` needs OpenSSL), and which have no Go equivalent at all.
+
+## The critical findings
+
+Two defects in gpython's code that the CPython-side research could not find,
+because they only show up when you run the interpreter. Both are in
+`02-language-upgrade/05-code-gap-analysis.md`.
+
+1. **`import importlib` fails.** The `gpython/importlib` package exists and
+   holds a frozen blob of CPython 3.4's `_bootstrap.py`, but **nothing
+   imports the package**, so its `init()` never runs and the module is never
+   registered. Every import falls through to the filesystem. The fix is one
+   blank import in `stdlib/stdlib.go`, plus replacing the 3.4 blob.
+
+2. **`dict` iteration order is random.** `py/dict.go` declares
+   `type StringDict map[string]Object`, and Go maps randomise iteration
+   order. Measured across five runs, gpython produced five different
+   orderings of the same eight keys, and `keys()` and `items()` disagreed
+   within a single run. CPython guarantees insertion order since 3.7.
 
 ## The headline numbers
 
@@ -69,6 +88,10 @@ All measured, not estimated.
 | gpython opcodes | 102 | `vm/opcodes.go` |
 | Opcode names common to both | 53 | Set intersection |
 | Modules removed between 3.4 and 3.15 | 30 | Verified absent from the 3.15.2 `Lib/` tree |
+| gpython statement coverage | 22% | `go test -coverpkg` over 154,049 statements |
+| Missing public methods on core types | 127 | `str` 35, `bytes` 41, `set` 16, `int` 11, `list` 8, `dict` 7, `float` 7, `tuple` 2 |
+| Missing builtins | 17 | `stdlib/builtin/builtin.go` vs `dir(__builtins__)` |
+| Missing AST node types | 22 | `ast/ast.go` vs the 3.5-3.15 node set |
 
 ## Source pin
 
