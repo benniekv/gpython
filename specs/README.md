@@ -22,7 +22,8 @@ Read in this order. Each file assumes the ones before it.
 | 3 | `01-module-system/02-module-object-model.md` | The module object model, the `PyModuleDef` structure, the 3.15 unified slot mechanism, the extension init protocol |
 | 4 | `01-module-system/03-import-bytecodes.md` | The emitted bytecode for `import` and `from`, the `IMPORT_FROM` fallback and its exact error messages, the lazy import protocol |
 | 5 | `02-language-upgrade/01-language-gap.md` | Every syntax, compiler and runtime change from 3.4 to 3.15, with PEPs, and the workstream breakdown |
-| 6 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
+| 6 | `02-language-upgrade/02-gpython-work-plan.md` | Which gpython files change for each feature, layer by layer, with a 16-step implementation order |
+| 7 | `03-c-modules/01-c-module-inventory.md` | The complete inventory of CPython's C-coded modules, with the Go-portability assessment |
 
 ## The three workstreams
 

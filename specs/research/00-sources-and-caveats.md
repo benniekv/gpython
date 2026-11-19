@@ -231,6 +231,14 @@ claimed content. 53 checks, 0 failures.
 | CPython 3.15.2 top-level importable names is 206 | Yes |
 | gpython stdlib modules is 11, of which 4 match a CPython top-level name | Yes |
 | stdlib modules missing from gpython is 202 | Yes |
+| gpython `ast/ast.go` has 82 node types | Yes |
+| gpython `parser/lexer.go` has 70 token constants | Yes |
+| gpython `parser/grammar.y` is 1,987 lines | Yes |
+| gpython `symtable/symtable.go` is 828 lines | Yes |
+| gpython `compile/compile.go` is 1,933 lines | Yes |
+| gpython `vm/opcodes.go` defines 102 opcodes, highest number 148 | Yes |
+| gpython `vm/opcodes.go` uses CPython 3.4's numbers (`IMPORT_STAR` 84, `PRINT_EXPR` 70) | Yes |
+| gpython `vm/vm.go` is 46 lines | Yes |
 | All 30 removed modules are absent from the 3.15.2 `Lib/` tree | Yes |
 | All key 3.15 additions are present in the 3.15.2 `Lib/` tree | Yes, 17/17 |
 | `Grammar/Tokens` has `TSTRING_START`/`MIDDLE`/`END` | Yes |
@@ -322,6 +330,10 @@ reference exists.
 
 - **No implementation.** This is a research deliverable. No Go file was
   created or modified.
+- **No per-feature implementation tickets.** The work plan in
+  `02-language-upgrade/02-gpython-work-plan.md` gives the layer-by-layer
+  changes and a 16-step implementation order, but it does not break the work
+  into separately shippable tickets with their own test plans.
 - **No gpython source file was touched.** The only change to the gpython
   working tree is the new `specs/` directory.
 - **The C-module spec does not itemise every public function of every module.**
