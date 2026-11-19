@@ -53,9 +53,11 @@ All measured, not estimated.
 | C modules in `Modules/*.c` | 101 | GitHub trees API |
 | Always-static builtins | 27 | `Modules/Setup.bootstrap.in` |
 | Buildable C extensions | 80 | `Modules/Setup.stdlib.in` |
-| `Lib/` top-level `.py` modules | 151 | GitHub trees API |
-| `Lib/` packages (excluding `Lib/test/`) | 146 | GitHub trees API |
+| `Lib/` top-level `.py` modules | 150 | GitHub trees API |
+| `Lib/` packages (excluding `Lib/test/`, `Lib/lib2to3/`) | 56 | GitHub trees API |
+| CPython top-level importable names | 206 | 150 `.py` + 56 packages |
 | gpython stdlib modules | 11 | `ls stdlib/` in the gpython checkout |
+| stdlib modules missing from gpython | 202 | 206 minus the 4 matched by name |
 | gpython internal packages | 13 | Source tree |
 | Language versions spanned | 11 (3.4 → 3.15) | - |
 | PEPs in the feature list | ~55 | Per-file tables |

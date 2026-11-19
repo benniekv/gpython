@@ -9,7 +9,7 @@ Every source consulted, with what it contributed.
    Returned 6141 entries with `truncated: false`. This is the completeness
    guarantee for the module inventory: because the response is not truncated,
    every file in the tree was seen. Drove the file counts (101 `Modules/*.c`,
-   151 `Lib/*.py`, 146 `Lib/` packages, 16 `Modules/` subdirectories).
+   150 `Lib/*.py`, 56 `Lib/` packages, 16 `Modules/` subdirectories).
 
 2. **`Include/patchlevel.h`** - established that the reference is 3.15.2 with
    `PY_RELEASE_LEVEL_FINAL`, and that `main` is 3.16.0a2+dev. This single file
@@ -226,8 +226,11 @@ claimed content. 53 checks, 0 failures.
 | 91 root `.c` files are referenced by the build lists | Yes |
 | 10 unreferenced root `.c` files are all accounted for | Yes, 0 leftover |
 | The accounting closes: 25 + 66 + 1 + 2 + 6 + 1 = 101 | Yes |
-| `Lib/` top-level `.py` count is 151 | Yes |
-| `Lib/` package count (excluding `Lib/test/`) is 146 | Yes |
+| `Lib/` top-level `.py` count is 150 | Yes |
+| `Lib/` package count (a directory with an `__init__.py`, excluding `Lib/test/` and `Lib/lib2to3/`) is 56 | Yes |
+| CPython 3.15.2 top-level importable names is 206 | Yes |
+| gpython stdlib modules is 11, of which 4 match a CPython top-level name | Yes |
+| stdlib modules missing from gpython is 202 | Yes |
 | All 30 removed modules are absent from the 3.15.2 `Lib/` tree | Yes |
 | All key 3.15 additions are present in the 3.15.2 `Lib/` tree | Yes, 17/17 |
 | `Grammar/Tokens` has `TSTRING_START`/`MIDDLE`/`END` | Yes |

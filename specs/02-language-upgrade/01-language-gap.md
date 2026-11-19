@@ -561,8 +561,27 @@ New top-level modules and packages since 3.4:
 `webbrowser` (3.0), `wsgiref` (3.0), `xml` (3.0), `xmlrpc` (3.0), `zipapp`
 (3.5), `zipfile` (3.0), `zipimport` (3.0), `zlib` (3.0), `zoneinfo` (3.9).
 
-**gpython has 11 of these.** The gap is roughly 290 top-level modules and
-packages.
+**gpython has 11 stdlib modules.** The gap is **202 top-level modules and
+packages**.
+
+Measured against the CPython 3.15.2 tree on 2026-11-18:
+
+| Measure | Value | How measured |
+|---|---|---|
+| CPython 3.15.2 top-level importable names | 206 | 150 `Lib/*.py` modules plus 56 packages (a directory with an `__init__.py`), from the GitHub trees API |
+| gpython stdlib modules | 11 | `stdlib/` in the gpython checkout |
+| Names matching on both sides | 4 | `glob`, `os`, `string`, `tempfile` |
+| **Missing from gpython** | **202** | 206 minus the 4 matched |
+| Of the missing, pure Python in CPython | 184 | The module is a `Lib/*.py` with no C accelerator |
+| Of the missing, has a C accelerator | 18 | The module needs a Go implementation of the C part |
+| Of the missing, public names | 176 | No underscore prefix |
+| Of the missing, underscore-private | 26 | Internal helpers such as `_ast`, `_collections_abc`, `_opcode` |
+
+**The seven gpython module names that are not CPython top-level names.**
+`array`, `binascii`, `builtins`, `marshal`, `math`, `sys` and `time` are
+implemented in CPython as C extension modules plus, for some, a Python wrapper.
+They are not missing from gpython - they are implemented differently. Only
+`glob`, `os`, `string` and `tempfile` are the same module in both.
 
 ### The gpython-specific gap
 

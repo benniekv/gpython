@@ -106,9 +106,17 @@ gpython ships **11** stdlib modules. Measured from `stdlib/` at `8c979bc`:
 | `tempfile` | pure Python (`Lib/tempfile.py`) | present |
 | `time` | `Modules/timemodule.c` | present |
 
-Python 3.15 has **151** top-level `.py` modules in `Lib/` and **146** packages
-(measured from the 3.15.2 tree, excluding `Lib/test/`). The gap is therefore
-roughly 140 stdlib modules.
+Python 3.15 has **206** top-level importable names: **150** `Lib/*.py`
+modules plus **56** packages (a directory containing an `__init__.py`),
+measured from the 3.15.2 tree and excluding `Lib/test/` and `Lib/lib2to3/`.
+
+Of gpython's 11 modules, only **4** are the same module in CPython
+(`glob`, `os`, `string`, `tempfile`). The other seven (`array`, `binascii`,
+`builtins`, `marshal`, `math`, `sys`, `time`) are implemented in CPython as C
+extension modules, so they are present under the same name.
+
+**The gap is therefore 202 top-level modules and packages**: 184 pure Python
+in CPython, and 18 that have a C accelerator needing a Go implementation.
 
 ### The size of the gap
 
@@ -116,7 +124,7 @@ Three independent measures of "how far behind is gpython":
 
 | Measure | gpython | Python 3.15 | Ratio |
 |---|---|---|---|
-| Stdlib modules | 11 | ~297 (151 `.py` + 146 packages) | ~27× |
+| Stdlib modules | 11 | 206 (150 `.py` + 56 packages) | ~19× |
 | C extension modules | 0 (all are Go re-implementations) | 107 (27 always-static + 80 buildable) | n/a |
 | Language target | 3.4 | 3.15 | 11 minor versions |
 
@@ -189,6 +197,29 @@ ls stdlib/ | grep -v '^stdlib.go$' | grep -v '\.go$' | sort
 Expect exactly: `array`, `binascii`, `builtin`, `glob`, `marshal`, `math`, `os`,
 `string`, `sys`, `tempfile`, `time`.
 
+**2b. Confirm the 3.15.2 top-level name count is 206.**
+
+```bash
+curl -s "https://api.github.com/repos/python/cpython/git/trees/v3.15.2?recursive=1" \
+  > /tmp/tree.json
+python3 - <<'EOF'
+import json
+d = json.load(open('/tmp/tree.json'))
+blobs = {t['path'] for t in d['tree'] if t['type'] == 'blob'}
+dirs   = {t['path'] for t in d['tree'] if t['type'] == 'tree'}
+top_py = {p[4:-3] for p in blobs
+          if p.startswith('Lib/') and p.count('/') == 1 and p.endswith('.py')}
+pkgs   = {p[4:] for p in dirs
+          if p.startswith('Lib/') and f'{p}/__init__.py' in blobs
+          and not p[4:].startswith(('test', 'lib2to3'))
+          and '__pycache__' not in p}
+print('top-level .py:', len(top_py), ' packages:', len(pkgs),
+      ' total:', len(top_py | pkgs))
+EOF
+```
+
+Expect `top-level .py: 150  packages: 56  total: 206`.
+
 **3. Confirm the gpython dependency graph has not changed.**
 
 ```bash
@@ -214,7 +245,7 @@ print('Lib/ top .py    :', len([x for x in p if x.startswith('Lib/') and x.count
 "
 ```
 
-Expect `Modules/ root .c: 101` and `Lib/ top .py: 151`.
+Expect `Modules/ root .c: 101` and `Lib/ top .py: 150`.
 
 **5. Confirm the always-static builtin list.**
 
