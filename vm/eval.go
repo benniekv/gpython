@@ -497,8 +497,7 @@ func unpack_iterable(vm *Vm, v py.Object, argcnt int, argcntafter int, sp int) e
 	if err != nil {
 		return err
 	}
-	i := 0
-	for i = 0; i < argcnt; i++ {
+	for i := 0; i < argcnt; i++ {
 		w, err := py.Next(it)
 		if err != nil {
 			/* Iterator done, via error or exhaustion. */
@@ -523,7 +522,6 @@ func unpack_iterable(vm *Vm, v py.Object, argcnt int, argcntafter int, sp int) e
 	}
 	sp--
 	vm.frame.Stack[sp] = l
-	i++
 
 	ll := l.Len()
 	if ll < argcntafter {

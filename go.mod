@@ -1,6 +1,6 @@
 module github.com/go-python/gpython
 
-go 1.18
+go 1.27
 
 require (
 	github.com/google/go-cmp v0.5.8

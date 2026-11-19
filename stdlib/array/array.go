@@ -360,13 +360,14 @@ func (arr *array) M__getitem__(k py.Object) (py.Object, error) {
 			return py.String([]rune{rune(sli.Index(i).Int())}), nil
 		case 'f', 'd':
 			return py.Float(sli.Index(i).Float()), nil
+		default:
+			return nil, py.ExceptionNewf(py.TypeError, "bad array typecode %s", string(arr.descr))
 		}
 	case *py.Slice:
 		return nil, py.NotImplementedError
 	default:
 		return nil, py.ExceptionNewf(py.TypeError, "array indices must be integers")
 	}
-	panic("impossible")
 }
 
 func (arr *array) M__setitem__(k, v py.Object) (py.Object, error) {
@@ -412,6 +413,8 @@ func (arr *array) M__setitem__(k, v py.Object) (py.Object, error) {
 				return nil, py.ExceptionNewf(py.TypeError, "must be real number, not %s", v.Type().Name)
 			}
 			sli.Index(i).SetFloat(vv)
+		default:
+			return nil, py.ExceptionNewf(py.TypeError, "bad array typecode %s", string(arr.descr))
 		}
 		return py.None, nil
 	case *py.Slice:
@@ -419,7 +422,6 @@ func (arr *array) M__setitem__(k, v py.Object) (py.Object, error) {
 	default:
 		return nil, py.ExceptionNewf(py.TypeError, "array indices must be integers")
 	}
-	panic("impossible")
 }
 
 func (arr *array) appendRune(v py.Object) (py.Object, error) {
