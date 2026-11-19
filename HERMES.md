@@ -139,6 +139,15 @@ Follow the format in `CONTRIBUTE.md`:
 
 Reference an issue as `Fixes go-python/gpython#NN` when one exists.
 
+Every commit message ends with the attribution line, on its own line:
+
+    Authored-By: Bennie Kahler-Venter <bennie@obsidian.co.za>
+
+Do not write a `Co-Authored-By:` trailer, and do not name any model, vendor,
+or agent in a commit message. Both the author and the committer of a commit
+must be `Bennie Kahler-Venter <bennie@obsidian.co.za>`. Never rewrite the
+authorship of commits made by other people.
+
 ## Working in this repo
 
 - Commit at the end of every prompt. Stage all changes, run the project's checks, commit,
